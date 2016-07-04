@@ -15,7 +15,8 @@ var Botkit = require('./node_modules/botkit/lib/Botkit.js');
 var os = require('os');
 
 var controller = Botkit.slackbot({
-    debug: false
+    debug: false,
+    json_file_store: '/db/vdefine'
 })
 
 var bot = controller.spawn({
