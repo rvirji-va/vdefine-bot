@@ -15,67 +15,14 @@ var Botkit = require('./node_modules/botkit/lib/Botkit.js');
 var os = require('os');
 
 var controller = Botkit.slackbot({
-    debug: true
+    debug: false
 })
 
 var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
-controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
-	var lookup = message.match[1];
-	lookup = lookup.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").toLowerCase();
-
-	controller.storage.teams.get(lookup, function(err, def) {
-		if (!def) {
-			bot.reply(message, 'There is no definition for ' + lookup + '!');
-			bot.startConversation(message, function(err, convo) {
-				if (!err) {
-					convo.ask('Want to define ' + lookup + '?', [
-						{
-							pattern: 'yes',
-							callback: function(response, convo) {
-								convo.ask('Okay, what would you like to define it as?', function(response, convo) {
-									if (!def) {
-										def = {
-											id: lookup
-										}
-										def.definition = response.text;
-										controller.storage.teams.save(def, function(err, id) {
-											bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
-											convo.next();
-										});
-									}
-
-								});
-								
-								convo.next();
-							}
-						},
-						{
-							pattern: 'no',
-							callback: function(response, convo) {
-								convo.say('Okay, I won\'t.');
-								convo.next();
-							}
-						},
-						{
-							default: true,
-							callback: function(response, convo) {
-								convo.repeat();
-								convo.next();
-							}
-						}
-					]);
-					convo.on('end', function(convo) {
-						bot.reply(message, "Bye!");
-					});
-				}
-			});
-		} else {
-			bot.reply(message, 'The definition of "' + lookup + '" is "' + def.definition + '".'); }
-	});
-});
+controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
 controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
 	var lookup = message.match[1];
@@ -158,4 +105,59 @@ function formatUptime(uptime) {
 
     uptime = uptime + ' ' + unit;
     return uptime;
+}
+
+function define(bot, message) {
+	var lookup = message.match[1];
+	lookup = lookup.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").toLowerCase();
+
+	controller.storage.teams.get(lookup, function(err, def) {
+		if (!def) {
+			bot.reply(message, 'There is no definition for ' + lookup + '!');
+			bot.startConversation(message, function(err, convo) {
+				if (!err) {
+					convo.ask('Want to define ' + lookup + '?', [
+						{
+							pattern: 'yes',
+							callback: function(response, convo) {
+								convo.ask('Okay, what would you like to define it as?', function(response, convo) {
+									if (!def) {
+										def = {
+											id: lookup
+										}
+										def.definition = response.text;
+										controller.storage.teams.save(def, function(err, id) {
+											bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+											convo.next();
+										});
+									}
+
+								});
+								
+								convo.next();
+							}
+						},
+						{
+							pattern: 'no',
+							callback: function(response, convo) {
+								convo.say('Okay, I won\'t.');
+								convo.next();
+							}
+						},
+						{
+							default: true,
+							callback: function(response, convo) {
+								convo.repeat();
+								convo.next();
+							}
+						}
+					]);
+					convo.on('end', function(convo) {
+						bot.reply(message, "Bye!");
+					});
+				}
+			});
+		} else {
+			bot.reply(message, 'The definition of "' + lookup + '" is "' + def.definition + '".'); }
+	});
 }
