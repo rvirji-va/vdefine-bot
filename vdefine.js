@@ -23,7 +23,7 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
-controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
+controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
 controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
 	var lookup = message.match[1];
