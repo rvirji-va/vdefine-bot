@@ -23,7 +23,15 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
-controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
+controller.hears(['identify yourself', 'who are you', 'what is your name', 'help','introduce yourself'],
+    'direct_message,direct_mention,mention', function(bot, message) {
+
+        bot.reply(message,
+            'Hi I am a bot created by Rameez, Levi, and Cody for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
+
+    });
+
+controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
 controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
 	var lookup = message.match[1];
@@ -78,17 +86,7 @@ controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', fun
 	});
 });
 
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name', 'help'],
-    'direct_message,direct_mention,mention', function(bot, message) {
 
-        var hostname = os.hostname();
-        var uptime = formatUptime(process.uptime());
-
-        bot.reply(message,
-            ':robot_face: I am a bot named <@' + bot.identity.name +
-             '>. I have been running for ' + uptime + ' on ' + hostname + '.');
-
-    });
 
 function formatUptime(uptime) {
     var unit = 'second';
