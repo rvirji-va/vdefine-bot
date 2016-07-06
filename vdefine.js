@@ -78,7 +78,7 @@ controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', fun
 	});
 });
 
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
+controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name', 'help'],
     'direct_message,direct_mention,mention', function(bot, message) {
 
         var hostname = os.hostname();
