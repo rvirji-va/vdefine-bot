@@ -1,0 +1,23 @@
+{
+  "name": "vdefine",
+  "version": "1.0.0",
+  "description": "a slack chat bot",
+  "main": "vdefine.js",
+  "dependencies": {
+    "botkit": "^0.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvirji-va/vdefine-bot.git"
+  },
+  "author": "Levi & Rameez & Cody",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rvirji-va/vdefine-bot/issues"
+  },
+  "homepage": "https://github.com/rvirji-va/vdefine-bot#readme"
+}
