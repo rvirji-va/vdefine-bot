@@ -31,7 +31,6 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
 
     });
 
-controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
 controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
 	var lookup = message.match[1];
@@ -86,6 +85,7 @@ controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', fun
 	});
 });
 
+controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
 
 function formatUptime(uptime) {
