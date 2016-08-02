@@ -16,7 +16,7 @@ var os = require('os');
 
 var controller = Botkit.slackbot({
     debug: false,
-    json_file_store: '/db/vdefine'
+    json_file_store: '/tmp/db/vdefine'
 })
 
 var bot = controller.spawn({
@@ -27,12 +27,12 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Rameez, Levi, and Cody for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
+            'Hi I am a bot created by Ramses, Leviticus, and Cede for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
 
     });
 
 
-controller.hears(['redefine (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*'], 'direct_message,direct_mention,mention', function(bot, message) {
 	var lookup = message.match[1];
 	lookup = lookup.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").toLowerCase();
 
