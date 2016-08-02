@@ -8,7 +8,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "token=xoxb-56729011220-nnN5VH4KCNhI8YJDMMSME8Cf node vdefine.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
