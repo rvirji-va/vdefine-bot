@@ -1,0 +1,135 @@
+| AA 
+| Administration Area
+| The new name is Partner Central
+|-
+| ARM 
+| Assisted Reputation Management 
+| The new name is Concierge
+|-
+| CIS 
+| Centralized Identity Service
+| A module on VBC used for confirming a user's identity
+|-
+| CS 
+| Core Services 
+| A.K.A Core, or RepCore
+|-
+| DA 
+| Digital Agency
+|
+|-
+| DIFM 
+| Do It For Me
+|
+|-
+| DIWM
+| Do It With Me
+|
+|-
+| DIY
+| Do It Yourself
+|
+|-
+| GO 
+| G/O Digital
+| It's not a product but one of our partners, http://www.godigitalmarketing.com/
+|-
+| LD 
+| Listing Distribution 
+|
+|-
+| LeSS 
+| LargE-Scale Scrum
+| http://less.works/
+|-
+| MS
+| Micro-Sites, see Presence Builder
+|
+|-
+| NAP
+| Name, Address, Phone
+|
+|-
+| NAP+
+| Name, Address, Phone, Website
+|
+|-
+| NB
+| National Brands 
+| For short, A.K.A Brands
+|-
+| PB 
+| Presence Builder 
+| A.K.A Micro-Sites, and briefly Mobile-Sites (MS)
+|-
+| PC 
+| Partner Central 
+|
+|-
+| PM
+| Product Manager
+| A role that determines direction and business value for a product.
+|-
+| PO
+| Product Owner
+| A role in that (1) prioritizes items in a Product Backlog and (2) clarifies items in a Product Backlog
+|-
+| RM 
+| Reputation Management 
+| The oldest product in the company which has a few different names, such as Reputation Intelligence (RepInt), StepRep (SR)
+|-
+| SM 
+| Social Marketing 
+|
+|-
+| ST 
+| Sales Tool 
+| 
+|-
+| SR 
+| StepRep
+| see RM
+|-
+| VBC 
+| Vendasta Business Center 
+|
+|-
+| AC 
+| Acceptance Criteria
+| 
+|-
+| AGID 
+| Account Group ID
+| 
+|-
+| LID
+| Listing ID
+|
+|-
+| LIS
+| Listing
+| It is also the first 3 characters of a LID "LIS-XXXX"
+|-
+| PBR 
+| Product Backlog Refinement
+| 
+|-
+| PID 
+| Partner ID
+| Except in the context of CS it refers to a Profile ID, which maps 1-1 to an AccountGroup
+|-
+| PR 
+| Pull Request
+|
+|-
+| PRO
+| Profile
+| In CS it maps 1-1 to an AccountGroup
+|-
+| SEO 
+| Search Engine Optimization
+| 
+|-
+| VFF 
+| Vendasta Frontend Framework
+|  
