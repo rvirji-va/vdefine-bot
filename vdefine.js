@@ -71,7 +71,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 					    {
 					    	default: true,
 					    	callback: function(response, convo) {
-					    		convo.repeat();
+					    		convo.say('I have no idea what you\'re talking about, and I won\'t respond to it.');
 					    		convo.next();
 					    	}
 					    }
