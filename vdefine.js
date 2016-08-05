@@ -133,7 +133,15 @@ function define(bot, message) {
 										def = {
 											id: lookup
 										}
-										def.definition = response.text;
+			
+										var text = response.text;
+			                            var regex=/(.*)<(.+)>(.*)/g;
+								
+										while (regex.exec(text)) {
+											text = text.replace(regex, "\$1\$2\$3");
+										}
+
+										def.definition = text;
 										controller.storage.teams.save(def, function(err, id) {
 											bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
 											convo.next();
