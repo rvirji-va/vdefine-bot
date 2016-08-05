@@ -27,7 +27,7 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Ramses, Leviticus, and Cede for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
+            'Hi I am a bot created by Ramses, Leviticus, Cede, Chickson, J-Mac, and Rhodey for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
 
     });
 
@@ -44,7 +44,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 			    if (!err) {
               		convo.ask('Want to redefine ' + lookup + '?', [
 	         		    {
-				        	pattern: 'yes',
+				        	pattern: bot.utterances.yes,
 					           callback: function(response, convo) {
 					           	   convo.ask('Okay, what would you like to define it as?', function(response, convo) {
 					           	   	   if (def) {
@@ -62,7 +62,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 					           }
 					    },
 					    {
-					    	pattern: 'no',
+					    	pattern: bot.utterances.no,
 					    	callback: function(response, convo) {
 					    		convo.say('Okay, I won\'t.');
 					    		convo.next();
@@ -117,7 +117,7 @@ function define(bot, message) {
 				if (!err) {
 					convo.ask('Want to define ' + lookup + '?', [
 						{
-							pattern: 'yes',
+							pattern: bot.utterances.yes,
 							callback: function(response, convo) {
 								convo.ask('Okay, what would you like to define it as?', function(response, convo) {
 									if (!def) {
@@ -137,7 +137,7 @@ function define(bot, message) {
 							}
 						},
 						{
-							pattern: 'no',
+							pattern: bot.utterances.no,
 							callback: function(response, convo) {
 								convo.say('Okay, I won\'t.');
 								convo.next();
