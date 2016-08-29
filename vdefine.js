@@ -96,7 +96,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 	});
 });
 
-controller.hears(['who is (.*)', 'who\' (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
+controller.hears(['who is (.*)', 'who\'s (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
 	var lookup = message.match[1];
 	lookup = lookup.replace(/\s+|_/g, "").toLowerCase();
 
