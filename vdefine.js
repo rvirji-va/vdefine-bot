@@ -118,7 +118,7 @@ controller.hears(['who is (.*)', 'who\'s', 'who (.*)', 'get me (.*)'], 'direct_m
 				}
 			})
 		} else {
-			bot.reply(message, person.name + ' is a ' + person.type + '. ' + person.bio +
+			bot.reply(message, person.name + ' is in ' + person.type + '. ' + person.bio +
 				' If you want to get a hold of them, their slack name is ' + person.slack);
 		}
 	})
