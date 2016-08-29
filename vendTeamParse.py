@@ -1,15 +1,29 @@
 # coding: utf-8
 import json
 import re
+import urllib2
 from string import lower
 
+from BeautifulSoup import BeautifulSoup
 
-def iterate_members(member_file):
+
+def iterate_members(member_file, rescrape=False, write_changes=False):
+
+    if rescrape:
+        response = urllib2.urlopen('https://www.vendasta.com/company/team')
+        html = response.read()
+        soup = BeautifulSoup(html)
+        ul = soup.find('ul', id='team')
+        if write_changes:
+            open(member_file, 'w+').write(''.join(map(str, ul.contents)))
+
+
     member_data = open(member_file).read().replace('\n', '')
     member_data = re.sub('[\s]{2,}', ' ', member_data)
     member_list = member_data.split('</li>')
     for member in member_list:
-        write_JSON(convert_member_to_dict(member))
+        if write_changes:
+            write_JSON(convert_member_to_dict(member))
 
 
 def write_JSON(dict):
@@ -76,4 +90,4 @@ def get_type_from_code(p_type):
 
 
 if __name__ == '__main__':
-    iterate_members('vendasta_team.html')
+    iterate_members('vendasta_team.html', rescrape=True, write_changes=True)
