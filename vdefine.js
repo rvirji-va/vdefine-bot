@@ -96,13 +96,27 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 	});
 });
 
-controller.hears(['who is (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
+controller.hears(['who is (.*)', 'who\'s', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
 	var lookup = message.match[1];
 	lookup = lookup.replace(/\s+|_/g, "").toLowerCase();
 
 	controller.storage.users.get(lookup, function(err, person) {
 		if (!person) {
 			bot.reply(message, 'I don\'t know who ' + lookup + ' is!');
+			controller.storage.users.all(function(err, people) {
+				var listOfPeople = "";
+				people.forEach(function(po) {
+					if (po.name.toLowerCase().indexOf(lookup) > -1) {
+						listOfPeople += "- " + po.name + "\n";
+					}
+				});
+				if (listOfPeople.length > 0) {
+					bot.reply(message, 'You may have meant one of the following people:');
+					bot.reply(message, listOfPeople);
+				} else {
+					bot.reply(message, "Check your spelling, I'm not that smart yet.")
+				}
+			})
 		} else {
 			bot.reply(message, person.name + ' is a ' + person.type + '. ' + person.bio +
 				' If you want to get a hold of them, their slack name is ' + person.slack);
