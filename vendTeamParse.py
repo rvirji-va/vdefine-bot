@@ -14,8 +14,9 @@ def iterate_members(member_file):
 
 def write_JSON(dict):
     print dict
-    f = open('/db/teams/' + dict['name'] + '.json', 'w+')
-    f.write(str(dict))
+    if dict.get('name', False):
+        f = open('/db/teams/' + dict['name'] + '.json', 'w+')
+        f.write(str(dict))
 
 
 def convert_member_to_dict(member):
