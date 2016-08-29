@@ -36,7 +36,7 @@ def write_JSON(dict):
 def convert_member_to_dict(member):
     person = {}
     t_index = member.find('class="mix') + 15  # Member Type
-    if member.find("exe mix_all") > -1:
+    if member.find("exe\">") > -1:
         p_type = 'exe'
         person["type"] = get_type_from_code(p_type)
     elif t_index > 14:
