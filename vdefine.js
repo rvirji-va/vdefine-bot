@@ -112,17 +112,6 @@ controller.hears(['who is (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,dir
 
 controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
-function titleCase(str) {
-  str = str.toLowerCase().split(' ');
-
-  for(var i = 0; i < str.length; i++){
-    str[i] = str[i].split('');
-    str[i][0] = str[i][0].toUpperCase();
-    str[i] = str[i].join('');
-  }
-  return str.join(' ');
-}
-
 function define(bot, message) {
 	var lookup = message.match[1];
 	lookup = lookup.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").toLowerCase();
