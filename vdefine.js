@@ -102,7 +102,7 @@ controller.hears(['who is (.*)', 'who\'s', 'who (.*)', 'get me (.*)'], 'direct_m
 
 	controller.storage.users.get(lookup, function(err, person) {
 		if (!person) {
-			bot.reply(message, 'I don\'t know who ' + lookup + ' is!');
+			bot.reply(message, 'I don\'t know who ' + lookup.charAt(0).toUpperCase() + lookup.slice(1) + ' is!');
 			controller.storage.users.all(function(err, people) {
 				var listOfPeople = "";
 				people.forEach(function(po) {
@@ -119,7 +119,7 @@ controller.hears(['who is (.*)', 'who\'s', 'who (.*)', 'get me (.*)'], 'direct_m
 			})
 		} else {
 			bot.reply(message, person.name + ' is in ' + person.type + '. ' + person.bio +
-				' If you want to get a hold of ' + person.name.split(" ")[0] + ', use the slack name ' + person.slack);
+				' If you want to get a hold of ' + person.name.split(" ")[0] + ', use the slack name ' + person.slack + '.');
 		}
 	})
 });
