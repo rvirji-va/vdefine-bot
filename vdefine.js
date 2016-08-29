@@ -27,7 +27,7 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Ramses, Leviticus, Cede, Chickson, J-Mac, and Rhodey for a Hackathon Project. ' +
+            'Hi I am a bot created by Rameez, Levi, Cody, Corey, James, and Nathan for a Hackathon Project. ' +
 			'To use me just message me or mention me along with a word you would like to know the definition for. ' +
 			'If I know the definition I will define it for you otherwise you can define it yourself.')
 
