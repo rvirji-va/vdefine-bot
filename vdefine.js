@@ -17,7 +17,7 @@ var os = require('os');
 var controller = Botkit.slackbot({
     debug: false,
     json_file_store: '/db/'
-})
+});
 
 var bot = controller.spawn({
     token: process.env.token
@@ -27,7 +27,9 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Ramses, Leviticus, Cede, Chickson, J-Mac, and Rhodey for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the definition for. If I know the definition I will define it for you otherwise you can define it yourself.')
+            'Hi I am a bot created by Ramses, Leviticus, Cede, Chickson, J-Mac, and Rhodey for a Hackathon Project. ' +
+			'To use me just message me or mention me along with a word you would like to know the definition for. ' +
+			'If I know the definition I will define it for you otherwise you can define it yourself.')
 
     });
 
@@ -94,25 +96,31 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 	});
 });
 
+controller.hears(['who is (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
+	var lookup = message.match[1];
+	lookup = lookup.replace(/\s+|_/g, "").toLowerCase();
+
+	controller.storage.users.get(lookup, function(err, person) {
+		if (!person) {
+			bot.reply(message, 'I don\'t know who ' + lookup + ' is!');
+		} else {
+			bot.reply(message, person.name + ' is a ' + person.type + '. ' + person.bio +
+				' If you want to get a hold of them, their slack name is ' + person.slack);
+		}
+	})
+});
+
 controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
 
+function titleCase(str) {
+  str = str.toLowerCase().split(' ');
 
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'minute';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-
-    uptime = uptime + ' ' + unit;
-    return uptime;
+  for(var i = 0; i < str.length; i++){
+    str[i] = str[i].split('');
+    str[i][0] = str[i][0].toUpperCase();
+    str[i] = str[i].join('');
+  }
+  return str.join(' ');
 }
 
 function define(bot, message) {
