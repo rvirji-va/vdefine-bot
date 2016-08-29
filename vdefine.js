@@ -102,7 +102,7 @@ controller.hears(['who is (.*)', 'who\'s', 'who (.*)', 'get me (.*)'], 'direct_m
 
 	controller.storage.users.get(lookup, function(err, person) {
 		if (!person) {
-			bot.reply(message, 'I don\'t know who ' + lookup.charAt(0).toUpperCase() + lookup.slice(1) + ' is!');
+			bot.reply(message, 'I don\'t know who ' + message.match[1] + ' is!');
 			controller.storage.users.all(function(err, people) {
 				var listOfPeople = "";
 				people.forEach(function(po) {
