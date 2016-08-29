@@ -15,8 +15,8 @@ def iterate_members(member_file, rescrape=False, write_changes=False):
         soup = BeautifulSoup(html)
         ul = soup.find('ul', id='team')
         if write_changes:
-            open(member_file, 'w+').write(''.join(map(str, ul.contents)))
-
+            f = open(member_file, 'w+')
+            f.write(''.join(map(str, ul.contents)))
 
     member_data = open(member_file).read().replace('\n', '')
     member_data = re.sub('[\s]{2,}', ' ', member_data)
@@ -27,7 +27,7 @@ def iterate_members(member_file, rescrape=False, write_changes=False):
 
 
 def write_JSON(dict):
-    print dict
+    #print dict
     if dict.get('id', False):
         f = open('/db/users/' + dict['id'] + '.json', 'w+')
         f.write(json.dumps(dict))
@@ -45,7 +45,7 @@ def convert_member_to_dict(member):
     i_index = member.find("<img src=") + 10  # Member Image
     if i_index > 9:
         alt = member.find("alt=")+5
-        person["name"] = member[alt:alt+(member[alt:].find('">'))]
+        person["name"] = member[alt:alt+(member[alt:].find('" />'))]
         person["slack"] = get_slack_name(person["name"])
         person["id"] = lower(person["name"]).replace(' ', '')
     b_index = member.find("<p><strong>") + 11  # Member Bio
@@ -55,7 +55,7 @@ def convert_member_to_dict(member):
         # I blame the hangover
         # http://stackoverflow.com/questions/1342000/how-to-make-the-python-interpreter-correctly-handle-non-ascii-characters-in-stri
         person["bio"] = "".join(i for i in extract_bio(bio) if ord(i) < 128)
-
+    print person
     return person
 
 
@@ -69,6 +69,8 @@ def extract_bio(bio):
 
 
 def get_slack_name(name):
+    if len(name) < 1:
+        return False
     names = name.split(" ")
     return "@{}{}".format(lower(names[0][0]), lower(names[len(names)-1]))
 
@@ -76,17 +78,17 @@ def get_slack_name(name):
 def get_type_from_code(p_type):
     return {
         'bop': "Biz Ops",
-        'des': "Designer",
-        'dev': "Developer",
-        'ful': "Digital Agent",
-        'exe': "Executive",
+        'des': "Design",
+        'dev': "Research and Development",
+        'ful': "Digital Agency",
+        'exe': "The Executive Team",
         'mar': "Marketing",
         'psc': "Partner Success",
         'pst': "Partner Support",
         'sal': "Sales",
         'sup': "Ops and Finance",
 
-    }.get(p_type, "Crazy Person")
+    }.get(p_type, "Crazy Person's Guild")
 
 
 if __name__ == '__main__':
