@@ -52,7 +52,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 					           	   	   if (def) {
 					           	   	   	   def = {
 					           	   	   	   	   id: lookup
-										   }
+										   };
 
 										   var text = response.text;
 
@@ -143,7 +143,7 @@ function define(bot, message) {
 									if (!def) {
 										def = {
 											id: lookup
-										}
+										};
 			
 										var text = response.text;
 			                            var regex=/(.*)<(.+)>(.*)/g;
