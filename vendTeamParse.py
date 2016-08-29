@@ -81,7 +81,7 @@ def get_type_from_code(p_type):
         'des': "Design",
         'dev': "Research and Development",
         'ful': "Digital Agency",
-        'exe': "The Executive Team",
+        'exe': "The Executive Department",
         'mar': "Marketing",
         'psc': "Partner Success",
         'pst': "Partner Support",
