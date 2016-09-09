@@ -14,6 +14,8 @@ if (!process.env.token) {
 var Botkit = require('./node_modules/botkit/lib/Botkit.js');
 var os = require('os');
 
+var delay = 500;
+
 var controller = Botkit.slackbot({
     debug: false,
     json_file_store: '/db/'
@@ -27,10 +29,11 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Rameez, Levi, Cody, Corey, James, and Nathan for a Hackathon Project. ' +
-			'To use me just message me or mention me along with a word you would like to know the definition for. ' +
-			'If I know the definition I will define it for you otherwise you can define it yourself.')
-
+            'This bot was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n' +
+			'You can ask it to define a Vendasta-specific word or acronym, and you can provide a definition if there isn\'t one. ' +
+			'Just start your post with "@vdefine what is..."\n' +
+			'You can also ask it to give you more information about any Vendasta employee. Start your post with "@vdefine who is..."\n'+
+			'If you want to get a definition in private, just sent it a Direct Message.')
     });
 
 
@@ -154,7 +157,9 @@ function define(bot, message) {
 
 										def.definition = text;
 										controller.storage.teams.save(def, function(err, id) {
-											bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+											setTimeout(function() {
+  												bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+											}, delay);
 											convo.next();
 										});
 									}
