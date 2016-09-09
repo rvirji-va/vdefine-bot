@@ -159,8 +159,9 @@ function define(bot, message) {
 										controller.storage.teams.save(def, function(err, id) {
 											setTimeout(function() {
   												bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+  												convo.next();
 											}, delay);
-											convo.next();
+
 										});
 									}
 
