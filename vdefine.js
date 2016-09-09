@@ -67,8 +67,10 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 
 					           	   	   	   def.definition = text;
 					           	   	   	   controller.storage.teams.save(def, function(err, id) {
-					           	   	   	   	   bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
-					           	   	   	   	   convo.next();
+						           	   	   	   	setTimeout(function() {
+	  												bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+					           	   	   	   	   		convo.next();
+												}, delay);
 					           	   	   	   });
 					           	   	   }
 					           	   });
