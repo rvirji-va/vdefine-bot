@@ -14,10 +14,12 @@ if (!process.env.token) {
 var Botkit = require('./node_modules/botkit/lib/Botkit.js');
 var os = require('os');
 
+var delay = 500;
+
 var controller = Botkit.slackbot({
     debug: false,
-    json_file_store: '/tmp/db/vdefine'
-})
+    json_file_store: '/db/'
+});
 
 var bot = controller.spawn({
     token: process.env.token
@@ -27,8 +29,11 @@ controller.hears(['identify yourself', 'who are you', 'what is your name', 'help
     'direct_message,direct_mention,mention', function(bot, message) {
 
         bot.reply(message,
-            'Hi I am a bot created by Ramses, Leviticus, and Cede for a Hackathon Project. To use me just message me or mention me along with a word you would like to know the defintion for. If I know the definition I will define it for you otherwise you can define it yourself.')
-
+            'This bot was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n' +
+			'You can ask it to define a Vendasta-specific word or acronym, and you can provide a definition if there isn\'t one. ' +
+			'Just start your post with "@vdefine what is..."\n' +
+			'You can also ask it to give you more information about any Vendasta employee. Start your post with "@vdefine who is..."\n'+
+			'If you want to get a definition in private, just sent it a Direct Message.')
     });
 
 
@@ -44,17 +49,28 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 			    if (!err) {
               		convo.ask('Want to redefine ' + lookup + '?', [
 	         		    {
-				        	pattern: 'yes',
+				        	pattern: bot.utterances.yes,
 					           callback: function(response, convo) {
 					           	   convo.ask('Okay, what would you like to define it as?', function(response, convo) {
 					           	   	   if (def) {
 					           	   	   	   def = {
 					           	   	   	   	   id: lookup
+										   };
+
+										   var text = response.text;
+
+										   var regex=/(.*)<(.+)>(.*)/g;
+
+										   while (regex.exec(text)) {
+										   	   	text = text.replace(regex, "\$1\$2\$3");
 										   }
-					           	   	   	   def.definition = response.text;
+
+					           	   	   	   def.definition = text;
 					           	   	   	   controller.storage.teams.save(def, function(err, id) {
-					           	   	   	   	   bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
-					           	   	   	   	   convo.next();
+						           	   	   	   	setTimeout(function() {
+	  												bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+					           	   	   	   	   		convo.next();
+												}, delay);
 					           	   	   	   });
 					           	   	   }
 					           	   });
@@ -62,7 +78,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 					           }
 					    },
 					    {
-					    	pattern: 'no',
+					    	pattern: bot.utterances.no,
 					    	callback: function(response, convo) {
 					    		convo.say('Okay, I won\'t.');
 					    		convo.next();
@@ -71,7 +87,7 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 					    {
 					    	default: true,
 					    	callback: function(response, convo) {
-					    		convo.repeat();
+					    		convo.say('I have no idea what you\'re talking about, and I won\'t respond to it.');
 					    		convo.next();
 					    	}
 					    }
@@ -85,26 +101,35 @@ controller.hears(['redefine (.*)', '.* redefine (.*)', '.* redefine (.*) to .*']
 	});
 });
 
+controller.hears(['who is (.*)', 'who\'s (.*)', 'who (.*)', 'get me (.*)'], 'direct_message,direct_mention,mention', function(bot, message){
+	var lookup = message.match[1];
+	lookup = lookup.replace(/\s+|_/g, "").toLowerCase();
+
+	controller.storage.users.get(lookup, function(err, person) {
+		if (!person) {
+			bot.reply(message, 'I don\'t know who ' + message.match[1] + ' is!');
+			controller.storage.users.all(function(err, people) {
+				var listOfPeople = "";
+				people.forEach(function(po) {
+					if (po.name.toLowerCase().indexOf(lookup) > -1) {
+						listOfPeople += "- " + po.name + "\n";
+					}
+				});
+				if (listOfPeople.length > 0) {
+					bot.reply(message, 'You may have meant one of the following people:');
+					bot.reply(message, listOfPeople);
+				} else {
+					bot.reply(message, "Check your spelling, I'm not that smart yet.")
+				}
+			})
+		} else {
+			bot.reply(message, person.name + ' is in ' + person.type + '. ' + person.bio +
+				' If you want to get a hold of ' + person.name.split(" ")[0] + ', use the Slack name ' + person.slack + '.');
+		}
+	})
+});
+
 controller.hears(['what is (.*)', 'what does (.*) mean', '^define (.*)', 'wtf is (.*)', 'what are (.*)', '(.*)'], 'direct_message,direct_mention,mention', function(bot, message){define(bot, message)});
-
-
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'minute';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-
-    uptime = uptime + ' ' + unit;
-    return uptime;
-}
 
 function define(bot, message) {
 	var lookup = message.match[1];
@@ -117,17 +142,28 @@ function define(bot, message) {
 				if (!err) {
 					convo.ask('Want to define ' + lookup + '?', [
 						{
-							pattern: 'yes',
+							pattern: bot.utterances.yes,
 							callback: function(response, convo) {
 								convo.ask('Okay, what would you like to define it as?', function(response, convo) {
 									if (!def) {
 										def = {
 											id: lookup
+										};
+			
+										var text = response.text;
+			                            var regex=/(.*)<(.+)>(.*)/g;
+								
+										while (regex.exec(text)) {
+											text = text.replace(regex, "\$1\$2\$3");
 										}
-										def.definition = response.text;
+
+										def.definition = text;
 										controller.storage.teams.save(def, function(err, id) {
-											bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
-											convo.next();
+											setTimeout(function() {
+  												bot.reply(message, 'Got it, I\'ve defined '+lookup+'.');
+  												convo.next();
+											}, delay);
+
 										});
 									}
 
@@ -137,7 +173,7 @@ function define(bot, message) {
 							}
 						},
 						{
-							pattern: 'no',
+							pattern: bot.utterances.no,
 							callback: function(response, convo) {
 								convo.say('Okay, I won\'t.');
 								convo.next();
@@ -146,7 +182,7 @@ function define(bot, message) {
 						{
 							default: true,
 							callback: function(response, convo) {
-								convo.repeat();
+								convo.say('I have no idea what you said, and I won\'t respond to it.');
 								convo.next();
 							}
 						}
