@@ -20,7 +20,8 @@ def handle_command(command, channel):
 	"""
 	response = "I don't know what you mean and I won't respond to it.".format(command)
 	if command.startswith(DEFINE):
-		response = "Eventually I'll look {} up for you!".format(command)
+		query = _retrieve_query_from_input(command, DEFINE)
+		response = "Eventually I'll look {} up for you!".format(query)
 	slack_client.api_call("chat.postMessage", channel=channel,
 						  text=response, as_user=True)
 
@@ -41,8 +42,14 @@ def parse_slack_output(slack_rtm_output):
 	return None, None
 
 
+def _retrieve_query_from_input(input, commands_to_strip):
+	for item in commands_to_strip:
+		if input.startswith(item):
+			return input.replace(item, "", 1).strip()
+
+
 if __name__ == "__main__":
-	READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
+	READ_WEBSOCKET_DELAY = 0.5 # 1 second delay between reading from firehose
 	if slack_client.rtm_connect():
 		print("vDefine connected and running!")
 		while True:
