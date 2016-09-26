@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import json
 from slackclient import SlackClient
@@ -10,6 +11,7 @@ BOT_ID = os.environ.get("BOT_ID")
 AT_BOT = "<@" + BOT_ID + ">"
 DEFINE = ('define', 'what is', 'explain', 'wtf is')
 IDENTIFY = ('identify', 'who is')
+HELP = ('help', 'who are you', 'what are you', 'explain')
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -27,7 +29,7 @@ def handle_command(command, channel):
 		if definition:
 			response = "The definition for *{}* is '{}'.".format(query, definition)
 		else:
-			response = "I don't have a definition for {}!".format(query)
+			response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
 	if command.startswith(IDENTIFY):
 		query = _retrieve_query_from_input(command, IDENTIFY)
 		identification = _get_identification(query)
@@ -41,6 +43,12 @@ def handle_command(command, channel):
 				identification["slack"])
 		else:
 			response = "I don't know who {} is!".format(query)
+	if command.startswith(HELP):
+		response = "I was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n\nYou " + \
+		"can ask me to define a Vendasta-specific word or acronym, and you can provide a definition if there isn't one. " + \
+		"Just start your post with \"@vdefine what is...\"\n\n" + \
+		"You can also ask me to give you more information about any Vendasta employee. Start your post with \"@vdefine who is...\"\n\n" + \
+		"If you want to get a definition in private, just send me a Direct Message."
 	slack_client.api_call("chat.postMessage", channel=channel,
 						  text=response, as_user=True)
 
@@ -81,6 +89,7 @@ def _get_identification(query):
 		return False
 
 def _retrieve_query_from_input(input, commands_to_strip):
+	input = re.sub('[^A-Za-z0-9\ ]+', '', input)
 	for item in commands_to_strip:
 		if input.startswith(item):
 			return input.replace(item, "", 1).strip()
