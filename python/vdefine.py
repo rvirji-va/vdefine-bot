@@ -4,7 +4,7 @@ import time
 import json
 from slackclient import SlackClient
 
-# starterbot's ID as an environment variable
+# vdefine bot's ID as an environment variable
 BOT_ID = 'U2FCRRL74'
 
 # constants
@@ -75,6 +75,10 @@ def parse_slack_output(slack_rtm_output):
 				# return text after the @ mention, whitespace removed
 				return output['text'].split(AT_BOT)[1].strip().lower(), \
 					   output['channel']
+			elif output and 'text' in output and (output['text'].find('vdefine') > -1):
+				# return text after vdefine, whitespace removed
+				return output['text'].split('vdefine')[1].strip().lower(), \
+					   output['channel']
 			elif output and 'text' in output and output['channel'] in get_dm_ids() and not output['user'] == BOT_ID:
 				# direct message
 				return output['text'].strip().lower(), output['channel']
@@ -114,7 +118,7 @@ def get_dm_ids():
 	return tuple(bot_ims)
 
 if __name__ == "__main__":
-	READ_WEBSOCKET_DELAY = 0.5 # 1 second delay between reading from firehose
+	READ_WEBSOCKET_DELAY = 0.5 # 0.5 second delay between reading from firehose
 	if slack_client.rtm_connect():
 		print("vDefine connected and running!")
 		while True:
