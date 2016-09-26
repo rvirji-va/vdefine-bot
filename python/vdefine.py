@@ -2,6 +2,7 @@ import os
 import re
 import time
 import json
+import difflib
 from slackclient import SlackClient
 
 # vdefine bot's ID as an environment variable
@@ -14,7 +15,7 @@ REDEFINE = ('redefine', 'set definition for')
 IDENTIFY = ('identify', 'who is')
 HELP = ('help', 'who are you', 'what are you', 'explain')
 
-# instantiate Slack & Twilio clients
+# instantiate Slack client
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
 def handle_command(command, channel, user):
@@ -28,9 +29,21 @@ def handle_command(command, channel, user):
 		query = retrieve_query_from_input(command, DEFINE)
 		definition = get_definition(query)
 		if definition:
-			response = "The definition for *{}* is '{}'.".format(query, definition)
+			response = "The definition for *{}* is '{}'.".format(query, definition["definition"])
 		else:
-			response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
+			possible_names = [f.replace(".json", "") for f in os.listdir('/db/teams/')]
+			matches = get_close_matches(query, possible_names)
+			if len(matches) > 1:
+				response = "Couldn't find a definition for {}. Did you mean one of the following?:\n".format(query)
+				for match in matches:
+					definition = get_definition(match)
+					response = response + "- *{}*: ({})\n".format(definition["id"], definition["definition"])
+			if len(matches) == 1:
+				definition = get_definition(matches[0])
+				response = "The definition for *{}* is '{}'.".format(definition["id"], definition["definition"])
+			if len(matches) == 0:
+				response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
+
 	if command.startswith(REDEFINE):
 		query = retrieve_query_from_input(command, REDEFINE)
 		definition = get_definition(query)
@@ -39,19 +52,35 @@ def handle_command(command, channel, user):
 		else:
 			response = "What would you like to define {} as?".format(query)
 	if command.startswith(IDENTIFY):
-		query = retrieve_query_from_input(command, IDENTIFY)
-		identification = get_identification(query)
-		if identification:
+
+		def _identify():
 			first_name = identification["name"].split(" ")[0]
 			slack_id = get_user_slack_id(identification["slack"])
-			response = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
+			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
 				first_name,
 				identification["type"],
 				identification["bio"], 
 				first_name,
 				slack_id)
+
+		query = retrieve_query_from_input(command, IDENTIFY)
+		identification = get_identification(query)
+		if identification:
+			response = _identify()
 		else:
-			response = "I don't know who {} is!".format(query)
+			possible_names = [f.replace(".json", "") for f in os.listdir('/db/users/')]
+			matches = get_close_matches(query, possible_names)
+			if len(matches) > 1:
+				response = "Found a few people with that name! Did you mean one of the following?:\n"
+				for match in matches:
+					id = get_identification(match)
+					response = response + "- {} ({})\n".format(id["name"], id["type"])
+			if len(matches) == 1:
+				identification=get_identification(matches[0])
+				response = _identify()
+			if len(matches) == 0:
+				response = "I don't know who {} is!".format(query)
+
 	if command.startswith(HELP):
 		response = "I was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n\nYou " + \
 		"can ask me to define a Vendasta-specific word or acronym, and you can provide a definition if there isn't one. " + \
@@ -85,13 +114,20 @@ def parse_slack_output(slack_rtm_output):
 				return output['text'].strip().lower(), output['channel'], output['user']
 	return None, None, None
 
+def get_close_matches(query, possible_names):
+	matches = difflib.get_close_matches(query, possible_names)
+	for name in possible_names:
+		if (name.find(query) > -1) and name not in matches:
+			matches = matches + [name]
+	return matches
+
 def get_definition(query):
 	query = query.lower()
 	filename = "/db/teams/{}.json".format(query)
 	if os.path.isfile(filename):
 		with open(filename) as data_file:
 			data = json.load(data_file)
-		return data["definition"]
+		return data
 	else:
 		return False
 
