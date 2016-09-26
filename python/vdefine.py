@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from slackclient import SlackClient
 
 # starterbot's ID as an environment variable
@@ -8,6 +9,7 @@ BOT_ID = os.environ.get("BOT_ID")
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 DEFINE = ('define', 'what is', 'explain', 'wtf is')
+IDENTIFY = ('identify', 'who is')
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -21,7 +23,18 @@ def handle_command(command, channel):
 	response = "I don't know what you mean and I won't respond to it.".format(command)
 	if command.startswith(DEFINE):
 		query = _retrieve_query_from_input(command, DEFINE)
-		response = "Eventually I'll look {} up for you!".format(query)
+		definition = _get_definition(query)
+		if definition:
+			response = "The definition for *{}* is '{}'.".format(query, definition)
+		else:
+			response = "I don't have a definition for {}!".format(query)
+	if command.startswith(IDENTIFY):
+		query = _retrieve_query_from_input(command, IDENTIFY)
+		identification = _get_identification(query)
+		if identification:
+			response = "{} You can find him on slack at {}.".format(identification["bio"], identification["slack"])
+		else:
+			response = "I don't know who {} is!".format(query)
 	slack_client.api_call("chat.postMessage", channel=channel,
 						  text=response, as_user=True)
 
@@ -41,6 +54,25 @@ def parse_slack_output(slack_rtm_output):
 					   output['channel']
 	return None, None
 
+def _get_definition(query):
+	query = query.lower()
+	filename = "/db/teams/{}.json".format(query)
+	if os.path.isfile(filename):
+		with open(filename) as data_file:
+			data = json.load(data_file)
+		return data["definition"]
+	else:
+		return False
+
+def _get_identification(query):
+	query = query.lower().replace(" ", "")
+	filename = "/db/users/{}.json".format(query)
+	if os.path.isfile(filename):
+		with open(filename) as data_file:
+			data = json.load(data_file)
+		return data
+	else:
+		return False
 
 def _retrieve_query_from_input(input, commands_to_strip):
 	for item in commands_to_strip:
