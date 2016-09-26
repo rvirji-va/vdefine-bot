@@ -32,7 +32,13 @@ def handle_command(command, channel):
 		query = _retrieve_query_from_input(command, IDENTIFY)
 		identification = _get_identification(query)
 		if identification:
-			response = "{} You can find him on slack at {}.".format(identification["bio"], identification["slack"])
+			first_name = identification["name"].split(" ")[0]
+			response = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
+				first_name,
+				identification["type"],
+				identification["bio"], 
+				first_name,
+				identification["slack"])
 		else:
 			response = "I don't know who {} is!".format(query)
 	slack_client.api_call("chat.postMessage", channel=channel,
