@@ -5,7 +5,7 @@ import json
 import difflib
 from slackclient import SlackClient
 
-# vdefine bot's ID as an environment variable
+# vdefine bot's ID
 BOT_ID = 'U2FCRRL74'
 
 # constants
@@ -16,6 +16,7 @@ IDENTIFY = ('identify', 'who is')
 HELP = ('help', 'who are you', 'what are you', 'explain')
 
 # instantiate Slack client
+# remember to "export SLACK_BOT_TOKEN={token}"
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
 def handle_command(command, channel, user):
@@ -24,7 +25,8 @@ def handle_command(command, channel, user):
 		are valid commands. If so, then acts on the commands. If not,
 		returns back what it needs for clarification.
 	"""
-	response = "I don't know what you mean and I won't respond to it.".format(command)
+	response = ""
+	default_response = "I don't know what you mean and I won't respond to it."
 	if command.startswith(DEFINE):
 		query = retrieve_query_from_input(command, DEFINE)
 		definition = get_definition(query)
@@ -44,14 +46,14 @@ def handle_command(command, channel, user):
 			if len(matches) == 0:
 				response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
 
-	if command.startswith(REDEFINE):
+	elif command.startswith(REDEFINE):
 		query = retrieve_query_from_input(command, REDEFINE)
 		definition = get_definition(query)
 		if definition:
 			response = "{} is already defined as {}. Would you like to change this?".format(query, definition)
 		else:
 			response = "What would you like to define {} as?".format(query)
-	if command.startswith(IDENTIFY):
+	elif command.startswith(IDENTIFY):
 		query = retrieve_query_from_input(command, IDENTIFY)
 		identification = get_identification(query)
 		def _identify():
@@ -63,7 +65,7 @@ def handle_command(command, channel, user):
 				identification["bio"], 
 				first_name,
 				slack_id)
-			
+
 		if identification:
 			response = _identify()
 		else:
@@ -80,14 +82,32 @@ def handle_command(command, channel, user):
 			if len(matches) == 0:
 				response = "I don't know who {} is!".format(query)
 
-	if command.startswith(HELP):
+	elif command.startswith(HELP):
 		response = "I was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n\nYou " + \
 		"can ask me to define a Vendasta-specific word or acronym, and you can provide a definition if there isn't one. " + \
 		"Just start your post with \"@vdefine what is...\"\n\n" + \
 		"You can also ask me to give you more information about any Vendasta employee. Start your post with \"@vdefine who is...\"\n\n" + \
 		"If you want to get a definition in private, just send me a Direct Message."
-	slack_client.api_call("chat.postMessage", channel=channel,
+	
+	if len(response) > 0:
+		slack_client.api_call("chat.postMessage", channel=channel,
 						  text=response, as_user=True)
+	elif not find_def_or_bio(command, channel, user) and not response=="":
+		slack_client.api_call("chat.postMessage", channel=channel,
+						  text=default_response, as_user=True)
+
+def find_def_or_bio(command, channel, user):
+	command = command.strip()
+	command = re.sub('[^A-Za-z0-9\ ]+', '', command)
+	possible_names = [f.replace(".json", "") for f in os.listdir('/db/users/')]
+	matches = get_close_matches(command, possible_names)
+	if len(matches) == 1:
+		handle_command("who is {}".format(command), channel, user)
+	possible_names = [f.replace(".json", "") for f in os.listdir('/db/teams/')]
+	matches = get_close_matches(command, possible_names)
+	if len(matches) == 1:
+		handle_command("what is {}".format(command), channel, user)
+	return False
 
 
 def parse_slack_output(slack_rtm_output):
