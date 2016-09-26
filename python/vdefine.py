@@ -10,7 +10,7 @@ BOT_ID = 'U2FCRRL74'
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 DEFINE = ('define', 'what is', 'explain', 'wtf is')
-
+REDEFINE = ('redefine', 'set definition for')
 IDENTIFY = ('identify', 'who is')
 HELP = ('help', 'who are you', 'what are you', 'explain')
 
@@ -25,15 +25,22 @@ def handle_command(command, channel):
 	"""
 	response = "I don't know what you mean and I won't respond to it.".format(command)
 	if command.startswith(DEFINE):
-		query = _retrieve_query_from_input(command, DEFINE)
-		definition = _get_definition(query)
+		query = retrieve_query_from_input(command, DEFINE)
+		definition = get_definition(query)
 		if definition:
 			response = "The definition for *{}* is '{}'.".format(query, definition)
 		else:
 			response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
+	if command.startswith(REDEFINE):
+		query = retrieve_query_from_input(command, REDEFINE)
+		definition = get_definition(query)
+		if definition:
+			response = "{} is already defined as {}. Would you like to change this?".format(query, definition)
+		else:
+			response = "What would you like to define {} as?".format(query)
 	if command.startswith(IDENTIFY):
-		query = _retrieve_query_from_input(command, IDENTIFY)
-		identification = _get_identification(query)
+		query = retrieve_query_from_input(command, IDENTIFY)
+		identification = get_identification(query)
 		if identification:
 			first_name = identification["name"].split(" ")[0]
 			response = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
@@ -68,12 +75,12 @@ def parse_slack_output(slack_rtm_output):
 				# return text after the @ mention, whitespace removed
 				return output['text'].split(AT_BOT)[1].strip().lower(), \
 					   output['channel']
-			elif output and 'text' in output and output['channel'] in _get_dm_ids() and not output['user'] == BOT_ID:
+			elif output and 'text' in output and output['channel'] in get_dm_ids() and not output['user'] == BOT_ID:
 				# direct message
 				return output['text'].strip().lower(), output['channel']
 	return None, None
 
-def _get_definition(query):
+def get_definition(query):
 	query = query.lower()
 	filename = "/db/teams/{}.json".format(query)
 	if os.path.isfile(filename):
@@ -83,7 +90,7 @@ def _get_definition(query):
 	else:
 		return False
 
-def _get_identification(query):
+def get_identification(query):
 	query = query.lower().replace(" ", "")
 	filename = "/db/users/{}.json".format(query)
 	if os.path.isfile(filename):
@@ -93,13 +100,13 @@ def _get_identification(query):
 	else:
 		return False
 
-def _retrieve_query_from_input(input, commands_to_strip):
+def retrieve_query_from_input(input, commands_to_strip):
 	input = re.sub('[^A-Za-z0-9\ ]+', '', input)
 	for item in commands_to_strip:
 		if input.startswith(item):
 			return input.replace(item, "", 1).strip()
 
-def _get_dm_ids():
+def get_dm_ids():
 	im_list = slack_client.api_call("im.list")
 	bot_ims = []
 	for im in im_list["ims"]:
