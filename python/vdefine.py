@@ -52,7 +52,8 @@ def handle_command(command, channel, user):
 		else:
 			response = "What would you like to define {} as?".format(query)
 	if command.startswith(IDENTIFY):
-
+		query = retrieve_query_from_input(command, IDENTIFY)
+		identification = get_identification(query)
 		def _identify():
 			first_name = identification["name"].split(" ")[0]
 			slack_id = get_user_slack_id(identification["slack"])
@@ -62,9 +63,7 @@ def handle_command(command, channel, user):
 				identification["bio"], 
 				first_name,
 				slack_id)
-
-		query = retrieve_query_from_input(command, IDENTIFY)
-		identification = get_identification(query)
+			
 		if identification:
 			response = _identify()
 		else:
