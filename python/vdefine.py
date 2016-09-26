@@ -17,7 +17,7 @@ HELP = ('help', 'who are you', 'what are you', 'explain')
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
-def handle_command(command, channel):
+def handle_command(command, channel, user):
 	"""
 		Receives commands directed at the bot and determines if they
 		are valid commands. If so, then acts on the commands. If not,
@@ -43,12 +43,13 @@ def handle_command(command, channel):
 		identification = get_identification(query)
 		if identification:
 			first_name = identification["name"].split(" ")[0]
+			slack_id = get_user_slack_id(identification["slack"])
 			response = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
 				first_name,
 				identification["type"],
 				identification["bio"], 
 				first_name,
-				identification["slack"])
+				slack_id)
 		else:
 			response = "I don't know who {} is!".format(query)
 	if command.startswith(HELP):
@@ -74,15 +75,15 @@ def parse_slack_output(slack_rtm_output):
 			if output and 'text' in output and AT_BOT in output['text']:
 				# return text after the @ mention, whitespace removed
 				return output['text'].split(AT_BOT)[1].strip().lower(), \
-					   output['channel']
+					   output['channel'], output['user']
 			elif output and 'text' in output and (output['text'].find('vdefine') > -1):
 				# return text after vdefine, whitespace removed
 				return output['text'].split('vdefine')[1].strip().lower(), \
-					   output['channel']
+					   output['channel'], output['user']
 			elif output and 'text' in output and output['channel'] in get_dm_ids() and not output['user'] == BOT_ID:
 				# direct message
-				return output['text'].strip().lower(), output['channel']
-	return None, None
+				return output['text'].strip().lower(), output['channel'], output['user']
+	return None, None, None
 
 def get_definition(query):
 	query = query.lower()
@@ -117,14 +118,25 @@ def get_dm_ids():
 		bot_ims = bot_ims + [im["id"]]
 	return tuple(bot_ims)
 
+def get_user_slack_id(slack_name):
+	if slack_name.startswith('@'):
+		slack_name = slack_name[1:]
+	members = slack_client.api_call("users.list")["members"]
+	for member in members:
+		if member["name"] == slack_name:
+			slack_name = "<@{}>".format(member["id"])
+	if not slack_name.startswith(('<', '@')):
+		slack_name = '@{}'.format(slack_name)
+	return slack_name
+
 if __name__ == "__main__":
 	READ_WEBSOCKET_DELAY = 0.5 # 0.5 second delay between reading from firehose
 	if slack_client.rtm_connect():
 		print("vDefine connected and running!")
 		while True:
-			command, channel = parse_slack_output(slack_client.rtm_read())
+			command, channel, user = parse_slack_output(slack_client.rtm_read())
 			if command and channel:
-				handle_command(command, channel)
+				handle_command(command, channel, user)
 			time.sleep(READ_WEBSOCKET_DELAY)
 	else:
 		print("Connection failed. Invalid Slack token or bot ID?")
