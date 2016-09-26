@@ -124,7 +124,7 @@ def parse_slack_output(slack_rtm_output):
 				# return text after the @ mention, whitespace removed
 				return output['text'].split(AT_BOT)[1].strip().lower(), \
 					   output['channel'], output['user']
-			elif output and 'text' in output and (output['text'].find('vdefine') > -1):
+			elif output and 'text' in output and (output['text'].find('vdefine') > -1) and not output['user'] == BOT_ID:
 				# return text after vdefine, whitespace removed
 				return output['text'].split('vdefine')[1].strip().lower(), \
 					   output['channel'], output['user']
