@@ -3,6 +3,7 @@ import re
 import time
 import json
 import difflib
+import httplib
 from slackclient import SlackClient
 
 # vdefine bot's ID
@@ -14,7 +15,7 @@ DEFINE = ('define', 'what is', 'explain', 'wtf is')
 SETDEF = ('set definition for', 'set definition of', 'setdef')
 REDEFINE = ('redefine', 'rdef')
 IDENTIFY = ('identify', 'who is')
-HELP = ('help', 'who are you', 'what are you', 'explain')
+HELP = ('help', 'who are you', 'what are you', 'explain', 'what is your purpose')
 
 # instantiate Slack client
 # remember to "export SLACK_BOT_TOKEN={token}"
@@ -70,14 +71,16 @@ def handle_command(command, channel, user):
 			first_name = identification["name"].split(" ")[0]
 			last_name = identification["name"].split(" ")[1]
 			slack_id = get_user_slack_id(identification["slack"])
-			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.\n\nPicture: http://vendasta.com/__v1404/static/images/team/{}-{}.jpg".format(
+			resp = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
 				first_name,
 				identification["type"],
 				identification["bio"], 
 				first_name,
-				slack_id,
-				first_name.lower(),
-				last_name.lower())
+				slack_id)
+			image_url = get_picture_url(first_name.lower(), last_name.lower())
+			if image_url:
+				resp = "{}\n\nPicture: {}".format(resp, image_url)
+			return resp
 
 		if identification:
 			response = _identify()
@@ -154,6 +157,23 @@ def get_close_matches(query, possible_names):
 		if (name.find(query) > -1) and name not in matches:
 			matches = matches + [name]
 	return matches
+
+def get_picture_url(first_name, last_name):
+
+    def get_status_code(host, path="/"):
+        try:
+            conn = httplib.HTTPConnection(host)
+            conn.request("HEAD", path)
+            return conn.getresponse().status
+        except StandardError:
+            return None
+
+    path = '/__v1404/static/images/team/{}-{}'.format(first_name, last_name)
+    if get_status_code('www.vendasta.com', path+'.jpg') in (200, 302):
+        return 'http://www.vendasta.com{}.jpg'.format(path)
+    elif get_status_code('vendasta.com', path+'.jpeg') in (200, 302):
+        return 'http://www.vendasta.com{}.jpeg'.format(path)
+    return None
 
 def get_definition(query):
 	query = query.lower()
