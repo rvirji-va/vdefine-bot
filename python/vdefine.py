@@ -58,13 +58,16 @@ def handle_command(command, channel, user):
 		identification = get_identification(query)
 		def _identify():
 			first_name = identification["name"].split(" ")[0]
+			last_name = identification["name"].split(" ")[1]
 			slack_id = get_user_slack_id(identification["slack"])
-			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
+			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}, http://vendasta.com/__v1404/static/images/team/{}-{}.jpg.".format(
 				first_name,
 				identification["type"],
 				identification["bio"], 
 				first_name,
-				slack_id)
+				slack_id,
+				first_name,
+				last_name)
 
 		if identification:
 			response = _identify()
