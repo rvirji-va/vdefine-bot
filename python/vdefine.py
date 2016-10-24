@@ -49,7 +49,7 @@ def handle_command(command, channel, user):
 	elif command.startswith(SETDEF):
 		query = retrieve_query_from_input(command, SETDEF)
 		q_elms = query.split(' as ', 1)
-		if len(q_elms) < 2:
+		if len(q_elms) < 2 or query.find(' as ') < 0:
 			response = "Your syntax is messed up. Try 'vdefine set definition for <word> as <definition>'."
 		else:
 			word = q_elms[0]
@@ -167,7 +167,6 @@ def set_definition(word, definition):
 	filename = "/db/teams/{}.json".format(word)
 	with open(filename, "w") as data_file:
 		def_dict = {"id": word, "definition": definition}
-		print def_dict
 		data_file.write(json.dumps(def_dict))
 		print "definition written to {}".format(filename)
 		return True
