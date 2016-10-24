@@ -11,7 +11,8 @@ BOT_ID = 'U2FCRRL74'
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 DEFINE = ('define', 'what is', 'explain', 'wtf is')
-REDEFINE = ('redefine', 'set definition for')
+SETDEF = ('set definition for', 'set definition of', 'setdef')
+REDEFINE = ('redefine', 'rdef')
 IDENTIFY = ('identify', 'who is')
 HELP = ('help', 'who are you', 'what are you', 'explain')
 
@@ -44,8 +45,17 @@ def handle_command(command, channel, user):
 				definition = get_definition(matches[0])
 				response = "The definition for *{}* is '{}'.".format(definition["id"], definition["definition"])
 			if len(matches) == 0:
-				response = "I don't have a definition for {}!\n\nWould you like to be the first to define it?".format(query)
-
+				response = "I don't have a definition for {}!\n\nUse 'vdefine set definition for <word> as <definition>' to set one.".format(query)
+	elif command.startswith(SETDEF):
+		query = retrieve_query_from_input(command, SETDEF)
+		q_elms = query.split(' as ', 1)
+		if len(q_elms) < 2 or query.find(' as ') < 0:
+			response = "Your syntax is messed up. Try 'vdefine set definition for <word> as <definition>'."
+		else:
+			word = q_elms[0]
+			defn = q_elms[1]
+			response = "I'm setting the definition for *{}* as '{}'.".format(word, defn)
+			set_definition(word, defn)
 	elif command.startswith(REDEFINE):
 		query = retrieve_query_from_input(command, REDEFINE)
 		definition = get_definition(query)
@@ -86,11 +96,13 @@ def handle_command(command, channel, user):
 				response = "I don't know who {} is!".format(query)
 
 	elif command.startswith(HELP):
-		response = "I was created by Rameez, Levi, Cody, Corey, James, and Nathan at Vendasta.\n\nYou " + \
-		"can ask me to define a Vendasta-specific word or acronym, and you can provide a definition if there isn't one. " + \
-		"Just start your post with \"@vdefine what is...\"\n\n" + \
-		"You can also ask me to give you more information about any Vendasta employee. Start your post with \"@vdefine who is...\"\n\n" + \
-		"If you want to get a definition in private, just send me a Direct Message."
+		response = "I was created  by Rameez with help from Levi, Cody, Corey, James and Nathan at Vendasta. \n\n" + \
+		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>'\n" + \
+		"- To define a new word: 'vdefine set definition for <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
+		"- To redefine a word: 'vdefine redefine <word> to <definition>'\n" + \
+		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>'\n" + \
+		"- For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
+		"You can also PM me with your command, leaving out the 'vdefine'."
 	
 	if len(response) > 0:
 		slack_client.api_call("chat.postMessage", channel=channel,
@@ -152,6 +164,16 @@ def get_definition(query):
 		return data
 	else:
 		return False
+
+def set_definition(word, definition):
+	word = word.lower()
+	filename = "/db/teams/{}.json".format(word)
+	with open(filename, "w") as data_file:
+		def_dict = {"id": word, "definition": definition}
+		data_file.write(json.dumps(def_dict))
+		print "definition written to {}".format(filename)
+		return True
+	return False
 
 def get_identification(query):
 	query = query.lower().replace(" ", "")
