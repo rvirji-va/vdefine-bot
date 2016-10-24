@@ -119,7 +119,7 @@ def find_def_or_bio(command, channel, user):
 	matches = get_close_matches(command, possible_names)
 	if command.replace(" ", "") in possible_names:
 		matches = [command]
-	if len(matches) == 1:
+	if len(matches) > 0:
 		handle_command("who is {}".format(command), channel, user)
 		return True
 	return False
