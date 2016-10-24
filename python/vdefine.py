@@ -106,11 +106,10 @@ def handle_command(command, channel, user):
 		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>'\n" + \
 		"- For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
 		"You can also PM me with your command, leaving out the 'vdefine'."
-	
 	if len(response) > 0:
 		slack_client.api_call("chat.postMessage", channel=channel,
 						  text=response, as_user=True)
-	elif not find_def_or_bio(command, channel, user) and not response=="":
+	elif not find_def_or_bio(command, channel, user) and response=="":
 		slack_client.api_call("chat.postMessage", channel=channel,
 						  text=default_response, as_user=True)
 
