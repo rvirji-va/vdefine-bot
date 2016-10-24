@@ -41,7 +41,7 @@ def handle_command(command, channel, user):
 				response = "Couldn't find a definition for {}. Did you mean one of the following?:\n".format(query)
 				for match in matches:
 					definition = get_definition(match)
-					response = response + "- *{}*: ({})\n".format(definition["id"], definition["definition"])
+					response = response + "- *{}*: _{}_\n".format(definition["id"], definition["definition"])
 			if len(matches) == 1:
 				definition = get_definition(matches[0])
 				response = "The definition for *{}* is '{}'.".format(definition["id"], definition["definition"])
