@@ -81,7 +81,7 @@ def handle_command(command, channel, user):
 				slack_id)
 			image_url = get_picture_url(first_name.lower(), last_name.lower())
 			if image_url:
-				attach = [{"title": first_name, "image_url": image_url}]
+				attach = [{"title": first_name, "image_url": image_url, "color": "#3F9B5E"}]
 			return resp, attach
 
 		if identification:
