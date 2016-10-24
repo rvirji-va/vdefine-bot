@@ -153,6 +153,8 @@ def get_close_matches(query, possible_names):
 	for name in possible_names:
 		if (name.find(query) > -1) and name not in matches:
 			matches = matches + [name]
+	if len(matches) > 10:
+		matches = matches[:10]
 	return matches
 
 def get_picture_url(first_name, last_name):
