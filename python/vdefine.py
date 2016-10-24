@@ -41,7 +41,7 @@ def handle_command(command, channel, user):
 				response = "Couldn't find a definition for {}. Did you mean one of the following?:\n".format(query)
 				for match in matches:
 					definition = get_definition(match)
-					response = response + "- *{}*: _{}_\n".format(definition["id"], definition["definition"])
+					response = response + "• *{}*: _{}_\n".format(definition["id"], definition["definition"])
 			if len(matches) == 1:
 				definition = get_definition(matches[0])
 				response = "The definition for *{}* is '{}'.".format(definition["id"], definition["definition"])
@@ -85,7 +85,7 @@ def handle_command(command, channel, user):
 				response = "Found a few people with that name! Did you mean one of the following?:\n"
 				for match in matches:
 					id = get_identification(match)
-					response = response + "- {} ({})\n".format(id["name"], id["type"])
+					response = response + "• {} ({})\n".format(id["name"], id["type"])
 			if len(matches) == 1:
 				identification=get_identification(matches[0])
 				response, attachments = _identify()
@@ -94,10 +94,10 @@ def handle_command(command, channel, user):
 
 	elif command.startswith(HELP):
 		response = "I was created by Rameez and Levi with help from Cody, Corey, James and Nathan at Vendasta. \n\n" + \
-		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>', 'vdefine <word>'\n" + \
-		"- To define or redefine a word: 'vdefine set <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
-		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>, 'vdefine <name>'\n" + \
-		"- For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
+		"*Usage*:\n• To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>', 'vdefine <word>'\n" + \
+		"• To define or redefine a word: 'vdefine set <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
+		"• To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>, 'vdefine <name>'\n" + \
+		"• For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
 		"You can also PM me with your command, leaving out the 'vdefine'."
 
 	if len(response) > 0:
