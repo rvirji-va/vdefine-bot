@@ -170,6 +170,8 @@ def get_picture_url(first_name, last_name):
         return 'http://www.vendasta.com{}.jpg'.format(path)
     elif get_status_code('www.vendasta.com', path+'.jpeg') in (200, 302):
         return 'http://www.vendasta.com{}.jpeg'.format(path)
+    elif get_status_code('www.vendasta.com', '/__v1404/static/images/team/{}{}.jpg'.format(first_name[0], last_name)) in (200, 302):
+        return 'http://www.vendasta.com/__v1404/static/images/team/{}{}.jpg'.format(first_name[0], last_name)
     return None
 
 def get_definition(query):
