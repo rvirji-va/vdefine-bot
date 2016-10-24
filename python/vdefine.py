@@ -120,10 +120,12 @@ def find_def_or_bio(command, channel, user):
 	matches = get_close_matches(command, possible_names)
 	if len(matches) == 1:
 		handle_command("who is {}".format(command), channel, user)
+		return True
 	possible_names = [f.replace(".json", "") for f in os.listdir('/db/teams/')]
 	matches = get_close_matches(command, possible_names)
 	if len(matches) == 1:
 		handle_command("what is {}".format(command), channel, user)
+		return True
 	return False
 
 
