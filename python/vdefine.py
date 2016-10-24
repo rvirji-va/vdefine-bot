@@ -28,6 +28,7 @@ def handle_command(command, channel, user):
 		returns back what it needs for clarification.
 	"""
 	response = ""
+	attachments = [{}]
 	default_response = "I don't know what you mean and I won't respond to it."
 	if command.startswith(DEFINE):
 		query = retrieve_query_from_input(command, DEFINE)
@@ -68,6 +69,7 @@ def handle_command(command, channel, user):
 		query = retrieve_query_from_input(command, IDENTIFY)
 		identification = get_identification(query)
 		def _identify():
+			attach = [{}]
 			first_name = identification["name"].split(" ")[0]
 			last_name = identification["name"].split(" ")[1]
 			slack_id = get_user_slack_id(identification["slack"])
@@ -79,11 +81,11 @@ def handle_command(command, channel, user):
 				slack_id)
 			image_url = get_picture_url(first_name.lower(), last_name.lower())
 			if image_url:
-				resp = "{}\n\nPicture: {}".format(resp, image_url)
-			return resp
+				attach = [{"title": first_name, "image_url": image_url}]
+			return resp, attach
 
 		if identification:
-			response = _identify()
+			response, attachments = _identify()
 		else:
 			possible_names = [f.replace(".json", "") for f in os.listdir('/db/users/')]
 			matches = get_close_matches(query, possible_names)
@@ -94,30 +96,33 @@ def handle_command(command, channel, user):
 					response = response + "- {} ({})\n".format(id["name"], id["type"])
 			if len(matches) == 1:
 				identification=get_identification(matches[0])
-				response = _identify()
+				response, attachments = _identify()
 			if len(matches) == 0:
 				response = "I don't know who {} is!".format(query)
 
 	elif command.startswith(HELP):
 		response = "I was created by Rameez and Levi with help from Cody, Corey, James and Nathan at Vendasta. \n\n" + \
-		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>'\n" + \
+		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>', 'vdefine <word>'\n" + \
 		"- To define a new word: 'vdefine set definition for <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
 		"- To redefine a word: 'vdefine redefine <word> to <definition>'\n" + \
-		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>'\n" + \
+		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>, 'vdefine <name>'\n" + \
 		"- For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
 		"You can also PM me with your command, leaving out the 'vdefine'."
+
 	if len(response) > 0:
 		slack_client.api_call("chat.postMessage", channel=channel,
-						  text=response, as_user=True)
+						  text=response, attachments=json.dumps(attachments), as_user=True)
 	elif not find_def_or_bio(command, channel, user) and response=="":
 		slack_client.api_call("chat.postMessage", channel=channel,
-						  text=default_response, as_user=True)
+						  text=default_response, attachments=json.dumps(attachments), as_user=True)
 
 def find_def_or_bio(command, channel, user):
 	command = command.strip()
 	command = re.sub('[^A-Za-z0-9\ ]+', '', command)
 	possible_names = [f.replace(".json", "") for f in os.listdir('/db/users/')]
 	matches = get_close_matches(command, possible_names)
+	if command.replace(" ", "") in possible_names:
+		matches = [command]
 	if len(matches) == 1:
 		handle_command("who is {}".format(command), channel, user)
 		return True
@@ -172,7 +177,7 @@ def get_picture_url(first_name, last_name):
     path = '/__v1404/static/images/team/{}-{}'.format(first_name, last_name)
     if get_status_code('www.vendasta.com', path+'.jpg') in (200, 302):
         return 'http://www.vendasta.com{}.jpg'.format(path)
-    elif get_status_code('vendasta.com', path+'.jpeg') in (200, 302):
+    elif get_status_code('www.vendasta.com', path+'.jpeg') in (200, 302):
         return 'http://www.vendasta.com{}.jpeg'.format(path)
     return None
 
