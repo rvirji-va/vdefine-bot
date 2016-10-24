@@ -70,14 +70,14 @@ def handle_command(command, channel, user):
 			first_name = identification["name"].split(" ")[0]
 			last_name = identification["name"].split(" ")[1]
 			slack_id = get_user_slack_id(identification["slack"])
-			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}, http://vendasta.com/__v1404/static/images/team/{}-{}.jpg.".format(
+			return "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.\n\nPicture: http://vendasta.com/__v1404/static/images/team/{}-{}.jpg".format(
 				first_name,
 				identification["type"],
 				identification["bio"], 
 				first_name,
 				slack_id,
-				first_name,
-				last_name)
+				first_name.lower(),
+				last_name.lower())
 
 		if identification:
 			response = _identify()
@@ -96,7 +96,7 @@ def handle_command(command, channel, user):
 				response = "I don't know who {} is!".format(query)
 
 	elif command.startswith(HELP):
-		response = "I was created  by Rameez with help from Levi, Cody, Corey, James and Nathan at Vendasta. \n\n" + \
+		response = "I was created by Rameez and Levi with help from Cody, Corey, James and Nathan at Vendasta. \n\n" + \
 		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>'\n" + \
 		"- To define a new word: 'vdefine set definition for <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
 		"- To redefine a word: 'vdefine redefine <word> to <definition>'\n" + \
