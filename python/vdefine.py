@@ -12,8 +12,7 @@ BOT_ID = 'U2FCRRL74'
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 DEFINE = ('define', 'what is', 'explain', 'wtf is')
-SETDEF = ('set definition for', 'set definition of', 'setdef')
-REDEFINE = ('redefine', 'rdef')
+SETDEF = ('set definition for', 'set definition of', 'setdef', 'set')
 IDENTIFY = ('identify', 'who is')
 HELP = ('help', 'who are you', 'what are you', 'explain', 'what is your purpose')
 
@@ -52,19 +51,12 @@ def handle_command(command, channel, user):
 		query = retrieve_query_from_input(command, SETDEF)
 		q_elms = query.split(' as ', 1)
 		if len(q_elms) < 2 or query.find(' as ') < 0:
-			response = "Your syntax is messed up. Try 'vdefine set definition for <word> as <definition>'."
+			response = "Your syntax is messed up. Try 'vdefine set <word> as <definition>'."
 		else:
 			word = q_elms[0]
 			defn = q_elms[1]
 			response = "I'm setting the definition for *{}* as '{}'.".format(word, defn)
 			set_definition(word, defn)
-	elif command.startswith(REDEFINE):
-		query = retrieve_query_from_input(command, REDEFINE)
-		definition = get_definition(query)
-		if definition:
-			response = "{} is already defined as {}. Would you like to change this?".format(query, definition)
-		else:
-			response = "What would you like to define {} as?".format(query)
 	elif command.startswith(IDENTIFY):
 		query = retrieve_query_from_input(command, IDENTIFY)
 		identification = get_identification(query)
@@ -103,8 +95,7 @@ def handle_command(command, channel, user):
 	elif command.startswith(HELP):
 		response = "I was created by Rameez and Levi with help from Cody, Corey, James and Nathan at Vendasta. \n\n" + \
 		"*Usage*:\n- To lookup the definition of a word: 'vdefine define <word>', 'vdefine what is <word>', 'vdefine <word>'\n" + \
-		"- To define a new word: 'vdefine set definition for <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
-		"- To redefine a word: 'vdefine redefine <word> to <definition>'\n" + \
+		"- To define or redefine a word: 'vdefine set <word> as <definition>', 'vdefine setdef <word> as <definition>'\n" + \
 		"- To lookup an employee: 'vdefine who is <name>', 'vdefine identify <name>, 'vdefine <name>'\n" + \
 		"- For this help dialog: 'vdefine help', 'vdefine explain', 'vdefine who are you', 'vdefine what are you'\n\n" +\
 		"You can also PM me with your command, leaving out the 'vdefine'."
@@ -148,9 +139,9 @@ def parse_slack_output(slack_rtm_output):
 				# return text after the @ mention, whitespace removed
 				return output['text'].split(AT_BOT)[1].strip().lower(), \
 					   output['channel'], output['user']
-			elif output and 'text' in output and (output['text'].find('vdefine') > -1) and not output['user'] == BOT_ID:
+			elif output and 'text' in output and (output['text'].lower().find('vdefine') > -1) and not output['user'] == BOT_ID:
 				# return text after vdefine, whitespace removed
-				return output['text'].split('vdefine')[1].strip().lower(), \
+				return re.compile(r"[vV][dD][eE][fF][iI][nN][eE]", flags=re.I).split(output['text'])[1].strip().lower(), \
 					   output['channel'], output['user']
 			elif output and 'text' in output and output['channel'] in get_dm_ids() and not output['user'] == BOT_ID:
 				# direct message
