@@ -118,7 +118,7 @@ def restore_emojis(text):
 
 def find_def_or_bio(command, channel, user):
 	command = command.strip()
-	command = re.sub('/']+', '', command)
+	command = re.sub('/', '', command)
 	possible_names = [f.replace(".json", "") for f in os.listdir('/db/teams/')]
 	matches = get_close_matches(command, possible_names)
 	if len(matches) > 0:
