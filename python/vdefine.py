@@ -26,6 +26,7 @@ def handle_command(command, channel, user):
 		are valid commands. If so, then acts on the commands. If not,
 		returns back what it needs for clarification.
 	"""
+	command = strip_emojis(command)
 	response = ""
 	attachments = [{}]
 	default_response = "I don't know what {} is. Try using 'vdefine help'.".format(command)
@@ -68,7 +69,7 @@ def handle_command(command, channel, user):
 			resp = "{} is in {}.\n\n{}\n\nYou can find {} on slack at {}.".format(
 				first_name,
 				identification["type"],
-				identification["bio"], 
+				identification["bio"],
 				first_name,
 				slack_id)
 			image_url = get_picture_url(first_name.lower(), last_name.lower())
@@ -102,10 +103,18 @@ def handle_command(command, channel, user):
 
 	if len(response) > 0:
 		slack_client.api_call("chat.postMessage", channel=channel,
-						  text=response, attachments=json.dumps(attachments), as_user=True)
+						  text=restore_emojis(response), attachments=json.dumps(attachments), as_user=True)
 	elif not find_def_or_bio(command, channel, user) and response=="":
 		slack_client.api_call("chat.postMessage", channel=channel,
 						  text=default_response, attachments=json.dumps(attachments), as_user=True)
+
+
+def strip_emojis(text):
+	return re.sub(':(.+):', '@%EM-\g<1>', text)
+
+def restore_emojis(text):
+	return re.sub('@%EM-(.+) ', ':\g<1>: ', text)
+
 
 def find_def_or_bio(command, channel, user):
 	command = command.strip()
@@ -207,7 +216,7 @@ def get_identification(query):
 		return False
 
 def retrieve_query_from_input(input, commands_to_strip):
-	input = re.sub('[^A-Za-z0-9\ ]+', '', input)
+	input = re.sub('[^A-Za-z0-9i\@\%\#\$\!\^\&\(\)\[\]\ \']+', '', input)
 	for item in commands_to_strip:
 		if input.startswith(item):
 			return input.replace(item, "", 1).strip()
@@ -235,9 +244,16 @@ if __name__ == "__main__":
 	if slack_client.rtm_connect():
 		print("vDefine connected and running!")
 		while True:
-			command, channel, user = parse_slack_output(slack_client.rtm_read())
-			if command and channel:
-				handle_command(command, channel, user)
-			time.sleep(READ_WEBSOCKET_DELAY)
+			try:
+				command, channel, user = parse_slack_output(slack_client.rtm_read())
+				if command and channel:
+					handle_command(command, channel, user)
+					time.sleep(READ_WEBSOCKET_DELAY)
+			except:
+				print "Unexpected error:", sys.exc_info()[0]
+				time.sleep(1)
+				slack_client.rtm_connect()
+			else:
+				break
 	else:
 		print("Connection failed. Invalid Slack token or bot ID?")
