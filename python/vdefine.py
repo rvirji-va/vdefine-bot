@@ -110,7 +110,7 @@ def handle_command(command, channel, user):
 
 
 def strip_emojis(text):
-	return re.sub(':(.+):', '@%EM-\g<1>-@EM', text)
+	return re.sub(':([A-Za-z0-9\-]+):', '@%EM-\g<1>-@EM', text)
 
 def restore_emojis(text):
 	return re.sub('@%EM-([A-Za-z0-9\-]+)-@EM', ':\g<1>:', text)
