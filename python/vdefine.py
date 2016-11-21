@@ -102,8 +102,6 @@ def handle_command(command, channel, user):
 		"You can also PM me with your command, leaving out the 'vdefine'."
 
 	if len(response) > 0:
-		print response
-		print restore_emojis(response)
 		slack_client.api_call("chat.postMessage", channel=channel,
 						  text=restore_emojis(response), attachments=json.dumps(attachments), as_user=True)
 	elif not find_def_or_bio(command, channel, user) and response=="":
