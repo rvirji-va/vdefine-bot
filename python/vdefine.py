@@ -244,16 +244,9 @@ if __name__ == "__main__":
 	if slack_client.rtm_connect():
 		print("vDefine connected and running!")
 		while True:
-			try:
-				command, channel, user = parse_slack_output(slack_client.rtm_read())
-				if command and channel:
-					handle_command(command, channel, user)
-					time.sleep(READ_WEBSOCKET_DELAY)
-			except:
-				print "Unexpected error:", sys.exc_info()[0]
-				time.sleep(1)
-				slack_client.rtm_connect()
-			else:
-				break
+			command, channel, user = parse_slack_output(slack_client.rtm_read())
+			command and channel:
+			handle_command(command, channel, user)
+			time.sleep(READ_WEBSOCKET_DELAY)
 	else:
 		print("Connection failed. Invalid Slack token or bot ID?")
